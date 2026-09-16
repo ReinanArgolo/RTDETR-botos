@@ -119,6 +119,43 @@ por isso `deterministic: false`, mantendo `seed: 42` para controlar as demais
 fontes de aleatoriedade. Se aparecerem NaNs durante a associação bipartida,
 altere `amp: false` no YAML e reinicie com um novo `run_id`.
 
+### Falta de VRAM em GPU compartilhada
+
+Para `imgsz=1280`, o preflight exige por padrão pelo menos 14 GiB livres na GPU.
+O RT-DETR-L observado usou cerca de 11,7 GiB de forma sustentada, mas os picos
+podem ser maiores. O script encerra antes do treino se outros processos deixarem
+menos memória que o limite.
+
+Consulte os donos dos processos antes de interromper qualquer PID:
+
+```bash
+ps -o user,pid,etime,cmd -p PID1,PID2
+nvidia-smi
+```
+
+Se houver uma GPU dedicada com memória suficiente, selecione-a, por exemplo:
+
+```bash
+RTDETR_DEVICE=1 bash scripts/run_remote.sh \
+  data_upload/BOTOS_RTDETR_E2C_TEST_20260915_r1.zip \
+  rtdetr_l_e2c_i1280_b1_gpu1_seed42_run01
+```
+
+Se nenhuma GPU puder ser liberada, use o fallback controlado em 1024 px. Isso é
+um experimento diferente e não deve ser comparado diretamente com resultados em
+1280 px sem declarar a mudança:
+
+```bash
+RTDETR_IMGSZ=1024 RTDETR_MIN_FREE_GIB=10 bash scripts/run_remote.sh \
+  data_upload/BOTOS_RTDETR_E2C_TEST_20260915_r1.zip \
+  rtdetr_l_e2c_i1024_b1_seed42_run01
+```
+
+As variáveis `RTDETR_DEVICE`, `RTDETR_BATCH`, `RTDETR_IMGSZ` e
+`RTDETR_MIN_FREE_GIB` são registradas indiretamente nos argumentos e no snapshot
+da execução. `PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True` é aplicado para
+reduzir falhas por fragmentação, mas não substitui VRAM física livre.
+
 ## Execuções separadas
 
 ```bash

@@ -1,0 +1,50 @@
+experiment:
+  id: rtdetr_l_e2c_seed42
+  dataset_id: BOTOS_RTDETR_E2C_TEST_20260915_r1
+  hypothesis: RT-DETR-L inicializado em COCO pode melhorar a localizacao dos botos pequenos no split E2c.
+  null_hypothesis: RT-DETR-L nao melhora de forma pratica sobre os baselines existentes no mesmo protocolo.
+
+model:
+  weights: rtdetr-l.pt
+
+training:
+  epochs: 150
+  patience: 40
+  image_size: 1280
+  batch: 2
+  workers: 4
+  device: "0"
+  seed: 42
+  optimizer: AdamW
+  learning_rate: 0.0002
+  final_lr_fraction: 0.01
+  weight_decay: 0.0005
+  amp: true
+  deterministic: false
+  cache: false
+  save_period: 10
+  cos_lr: true
+  close_mosaic: 20
+
+augmentation:
+  hsv_h: 0.01
+  hsv_s: 0.40
+  hsv_v: 0.30
+  degrees: 5.0
+  translate: 0.10
+  scale: 0.25
+  shear: 0.0
+  perspective: 0.0
+  flipud: 0.50
+  fliplr: 0.50
+  mosaic: 0.20
+  mixup: 0.0
+  copy_paste: 0.0
+
+evaluation:
+  confidence_floor: 0.001
+  iou_nms: 0.70
+  max_detections: 300
+  batch: 2
+  plots: true
+

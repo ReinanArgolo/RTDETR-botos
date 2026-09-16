@@ -1,0 +1,9 @@
+.venv/
+__pycache__/
+*.py[cod]
+/data/
+/data_upload/*.zip
+/data_upload/*.sha256
+/runs/
+/weights/
+

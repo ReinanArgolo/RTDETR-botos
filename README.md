@@ -55,16 +55,28 @@ sha256sum -c checksums/BOTOS_RTDETR_E2C_TEST_20260915_r1.zip.sha256
 
 ## 2. Configuração do ambiente remoto
 
-Requer Python 3.10+ e uma GPU NVIDIA compatível com a instalação do PyTorch.
+Requer Python 3.10+ e uma GPU NVIDIA. O servidor Curupira usa driver 550 com
+CUDA 12.4; por isso o instalador fixa `torch==2.6.0`, `torchvision==0.21.0` e o
+índice oficial `cu124`, combinação que também suporta Python 3.13.
 
 ```bash
 bash scripts/setup_remote.sh
 ```
 
-Confirme que a saída informa `CUDA disponivel: True`. Se o PyTorch instalado
-automaticamente não corresponder ao driver CUDA do servidor, instale primeiro o
-wheel indicado pelo seletor oficial do PyTorch e repita a instalação dos
-requisitos.
+O script agora encerra com erro se o wheel não for CUDA 12.4 ou se
+`torch.cuda.is_available()` não retornar `True`.
+
+Se o ambiente anterior instalou `torch 2.14.0+cu130`, recrie-o antes de executar
+o instalador atualizado:
+
+```bash
+deactivate 2>/dev/null || true
+mv .venv .venv-cu130-backup
+bash scripts/setup_remote.sh
+```
+
+Depois de confirmar que CUDA e o treino funcionam, o ambiente antigo pode ser
+removido. Ele não contém dataset, código ou resultados.
 
 ## 3. Treino + validação + teste final
 
@@ -91,14 +103,13 @@ inferência. A avaliação Ultralytics mantém `max_det=300` separadamente.
 
 ## Ajustes de hardware
 
-O padrão é `imgsz=1280`, `batch=2`, GPU `0`. Se faltar VRAM, rode as etapas
-manualmente reduzindo primeiro o batch:
+O padrão para a Quadro RTX 5000 de 16 GB é `imgsz=1280`, `batch=1`, GPU `0`.
+Não use `batch=2` antes de verificar a memória livre e executar um smoke test.
 
 ```bash
 .venv/bin/python scripts/train.py \
   --data data/BOTOS_RTDETR_E2C_TEST_20260915_r1/data.yaml \
-  --run-id rtdetr_l_e2c_seed42_run01 \
-  --batch 1
+  --run-id rtdetr_l_e2c_seed42_run01
 ```
 
 Não reduza `imgsz` sem registrar um novo experimento: os alvos são pequenos e a

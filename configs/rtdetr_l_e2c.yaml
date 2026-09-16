@@ -11,7 +11,7 @@ training:
   epochs: 150
   patience: 40
   image_size: 1280
-  batch: 2
+  batch: 1
   workers: 4
   device: "0"
   seed: 42
@@ -45,6 +45,5 @@ evaluation:
   confidence_floor: 0.001
   iou_nms: 0.70
   max_detections: 300
-  batch: 2
+  batch: 1
   plots: true
-

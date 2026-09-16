@@ -100,7 +100,7 @@ def main() -> None:
     parser.add_argument("--split", choices=("val", "test"), required=True)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--imgsz", type=int, default=1280)
-    parser.add_argument("--batch", type=int, default=2)
+    parser.add_argument("--batch", type=int, default=1)
     parser.add_argument("--device", default="0")
     parser.add_argument("--conf", type=float, default=0.001)
     parser.add_argument("--iou", type=float, default=0.70)
